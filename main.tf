@@ -48,6 +48,22 @@ data "aws_iam_policy_document" "cross_account_secret_read" {
       }
     }
   }
+  statement {
+    effect = "Allow"
+    # Since this will be a resource-policy, we need to put "*" here
+    resources = ["*"]
+    actions = [
+      "secretsmanager:DescribeSecret",
+      "secretsmanager:GetResourcePolicy",
+    ]
+    dynamic "principals" {
+      for_each = var.principals
+      content {
+        type        = principals.key
+        identifiers = principals.value
+      }
+    }
+  }
 }
 data "aws_iam_policy_document" "cross_account_kms_decrypt" {
   # Enable IAM policies
